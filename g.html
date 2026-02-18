@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ethyrnal's Arcade</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0a0a0a;
+  color: #e4e4e7;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 3rem;
+  margin-bottom: 30px;
+}
+
+/* Search */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #111;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 25px;
+}
+
+.search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+}
+
+/* GRID */
+#buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 15px;
+}
+
+/* Square buttons */
+.game-button {
+  aspect-ratio: 1 / 1;
+  background: #111;
+  border: 1px solid #1f1f1f;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: 0.15s ease;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.game-button:hover {
+  background: #1a1a1a;
+  transform: scale(1.05);
+}
+
+.game-button img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.game-button span {
+  font-size: 13px;
+  text-align: center;
+}
+
+/* FULLSCREEN OVERLAY */
+#gameOverlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: none;
+  flex-direction: column;
+  z-index: 9999;
+}
+
+#gameOverlay.show {
+  display: flex;
+}
+
+#closeBtn {
+  background: #111;
+  color: white;
+  border: none;
+  padding: 15px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#gameFrame {
+  flex: 1;
+  border: none;
+  width: 100%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1 class="title">Ethyrnal's Arcade</h1>
+
+  <div class="search-box">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" id="searchInput" placeholder="Search games...">
+  </div>
+
+  <div id="buttons"></div>
+</div>
+
+<div id="gameOverlay">
+  <button id="closeBtn">← Back to Arcade</button>
+  <iframe id="gameFrame"></iframe>
+</div>
+
+<script>
+const baseUrl = "https://cdn.jsdelivr.net/gh/HyperFloppik/Game-Library@master/";
+const jsonUrl = baseUrl + "g.json";
+const proxy = "https://api.codetabs.com/v1/proxy/?quest=";
+
+const container = document.getElementById("buttons");
+const frame = document.getElementById("gameFrame");
+const overlay = document.getElementById("gameOverlay");
+const closeBtn = document.getElementById("closeBtn");
+const searchInput = document.getElementById("searchInput");
+
+let allGames = [];
+
+fetch(jsonUrl)
+  .then(res => res.json())
+  .then(data => {
+    allGames = data;
+    renderGames(data);
+    checkQueryGame(); // ✅ check for ?g=
+  })
+  .catch(err => console.error("JSON failed:", err));
+
+function renderGames(games) {
+  container.innerHTML = "";
+
+  games.forEach(gameObj => {
+    const gameFile = gameObj.file;
+    const iconUrl = gameObj.icon;
+
+    let name = gameFile.replace(/\.html$/i, "");
+    name = name.replace(/([a-z])([A-Z])/g, "$1 $2");
+
+    const btn = document.createElement("div");
+    btn.className = "game-button";
+
+    if (iconUrl) {
+      const img = document.createElement("img");
+      img.src = proxy + encodeURIComponent(iconUrl);
+      btn.appendChild(img);
+    }
+
+    const label = document.createElement("span");
+    label.textContent = name;
+    btn.appendChild(label);
+
+    btn.onclick = () => loadGame(gameFile);
+
+    container.appendChild(btn);
+  });
+}
+
+function loadGame(gameFile) {
+  fetch(baseUrl + gameFile)
+    .then(res => res.text())
+    .then(html => {
+      frame.srcdoc = html;
+      overlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+      history.replaceState(null, "", "?g=" + gameFile);
+    })
+    .catch(err => console.error("Game failed:", err));
+}
+
+function checkQueryGame() {
+  const params = new URLSearchParams(window.location.search);
+  const gameParam = params.get("g");
+
+  if (!gameParam) return;
+
+  const exists = allGames.some(g => g.file === gameParam);
+  if (exists) {
+    loadGame(gameParam);
+  }
+}
+
+closeBtn.onclick = () => {
+  overlay.classList.remove("show");
+  frame.srcdoc = "";
+  document.body.style.overflow = "auto";
+  history.replaceState(null, "", window.location.pathname);
+};
+
+searchInput.addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+  const filtered = allGames.filter(g =>
+    g.file.toLowerCase().includes(q)
+  );
+  renderGames(filtered);
+});
+</script>
+
+</body>
+</html>

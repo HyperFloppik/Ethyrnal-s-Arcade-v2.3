@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ethyrnal's Arcade</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+    body {
+        margin: 0;
+        background: #0a0a0a;
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+    }
+    /* SETTINGS BUTTON */
+    .settings-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #111;
+        border: 1px solid #1f1f1f;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 1500;
+    }
+    .settings-btn i { color: #fff; font-size: 16px; }
+    .settings-panel {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        width: 260px;
+        background: #111;
+        border: 1px solid #1f1f1f;
+        border-radius: 12px;
+        padding: 10px;
+        display: none;
+        flex-direction: column;
+        gap: 6px;
+        z-index: 1600;
+    }
+    .settings-panel.show { display: flex; }
+    .settings-option {
+        padding: 10px;
+        border-radius: 8px;
+        background: #141414;
+        border: 1px solid #1f1f1f;
+        font-size: 13px;
+        cursor: pointer;
+        color: #fff;
+    }
+    .settings-option:hover { background: #1a1a1a; }
+    /* FLOATING BAR */
+    .floating-bar {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 12px;
+        padding: 10px 16px;
+        border-radius: 16px;
+        background: rgba(15,15,15,0.85);
+        border: 1px solid #1f1f1f;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+    .floating-bar button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        background: #0f0f0f;
+        color: #e4e4e7;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .floating-bar button:hover { background:#1a1a1a; transform:translateY(-2px); color:#fff; }
+    iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; z-index:1; }
+    /* LOADER */
+    .loader {
+        position: fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background: rgba(10,10,10,0.9);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-direction:column;
+        z-index:2000;
+    }
+    .progress-bar-container {
+        width:60%; max-width:400px;
+        height:8px; background:#1f1f1f;
+        border-radius:4px; overflow:hidden; margin-top:10px;
+    }
+    .progress-bar {
+        width:0%; height:100%;
+        background:#fff; border-radius:4px;
+        transition: width 0.2s;
+    }
+    .settings-panel input[type="text"] {
+        width:100%; padding:4px 6px;
+        border-radius:4px; border:1px solid #1f1f1f;
+        background:#0f0f0f; color:#fff;
+        font-size:13px; cursor:pointer;
+    }
+</style>
+</head>
+<body>
+<!-- SETTINGS -->
+<div class="settings-btn" id="settingsToggle"><i class="fa-solid fa-gear"></i></div>
+<div class="settings-panel" id="settingsPanel">
+    <div class="settings-option" onclick="cloakPage()">Cloaking</div>
+    <div class="settings-option">
+        <label style="font-size:13px; cursor:pointer">
+            <input type="checkbox" id="autoCloakToggle" style="margin-right:6px" /> Automatic Cloak
+        </label>
+    </div>
+    <div class="settings-option">
+        <label style="font-size:13px">Panic URL:</label>
+        <input type="text" id="panicUrlInput" placeholder="https://example.com" />
+    </div>
+    <div class="settings-option">
+        <label style="font-size:13px">Panic Key:</label>
+        <input type="text" id="panicKeyInput" placeholder="Click to set key" readonly />
+    </div>
+</div>
+
+<div class="loader" id="loader">
+    <div style="color:#fff; font-size:14px; margin-bottom:6px">Loading...</div>
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+</div>
+
+<!-- Bottom navigation bar -->
+<div class="floating-bar">
+    <button onclick="loadHome()"><i class="fa-solid fa-house"></i>Home</button>
+    <button onclick="loadGames()"><i class="fa-solid fa-gamepad"></i>Games</button>
+    <button onclick="loadApps()"><i class="fa-solid fa-layer-group"></i>Apps</button>
+    <button onclick="loadProxy()"><i class="fa-solid fa-server"></i>Proxy</button>
+</div>
+
+<iframe id="contentFrame"></iframe>
+
+<script>
+const loader = document.getElementById("loader");
+const progressBar = document.getElementById("progressBar");
+const iframe = document.getElementById("contentFrame");
+const settingsBtn = document.getElementById("settingsToggle");
+const settingsPanel = document.getElementById("settingsPanel");
+const autoCloakToggle = document.getElementById("autoCloakToggle");
+const panicUrlInput = document.getElementById("panicUrlInput");
+const panicKeyInput = document.getElementById("panicKeyInput");
+
+// TOGGLE SETTINGS PANEL
+settingsBtn.onclick = () => settingsPanel.classList.toggle("show");
+
+// SAVE SETTINGS
+autoCloakToggle.onchange = () => localStorage.setItem("autoCloak", autoCloakToggle.checked ? "1" : "0");
+
+panicUrlInput.onchange = () => {
+    let url = panicUrlInput.value.trim();
+    if(url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+    panicUrlInput.value = url;
+    localStorage.setItem("panicUrl", url);
+};
+
+// Panic key input
+panicKeyInput.onclick = () => {
+    panicKeyInput.value = "Listening for key...";
+    const listener = (e) => {
+        const key = e.key.toUpperCase();
+        panicKeyInput.value = key;
+        localStorage.setItem("panicKey", key);
+        document.removeEventListener("keydown", listener);
+    };
+    document.addEventListener("keydown", listener);
+};
+
+// LOAD STORED SETTINGS
+if(localStorage.getItem("autoCloak")==="1") autoCloakToggle.checked = true;
+if(localStorage.getItem("panicUrl")) panicUrlInput.value = localStorage.getItem("panicUrl");
+if(localStorage.getItem("panicKey")) panicKeyInput.value = localStorage.getItem("panicKey");
+
+// LOADER
+function showLoader(){
+    loader.style.display = "flex";
+    progressBar.style.width = "0%";
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random()*15;
+        if(progress>95) progress=95;
+        progressBar.style.width = progress + "%";
+    },200);
+    return interval;
+}
+
+// PAGE LOADERS
+function loadPage(url){
+    const interval = showLoader();
+    iframe.src = url;
+    iframe.onload = () => {
+        clearInterval(interval);
+        progressBar.style.width = "100%";
+        setTimeout(()=>loader.style.display="none",300);
+        settingsBtn.style.display = url==="homepage.html" ? "flex" : "none";
+        if(url!=="homepage.html") settingsPanel.classList.remove("show");
+    }
+}
+function loadHome(){ loadPage("homepage.html"); }
+function loadGames(){ loadPage("g.html"); }
+function loadApps(){ loadPage("apps.html"); }
+function loadProxy(){ loadPage("/scramjet/index.html"); }
+
+// CLOAKING
+function cloakPage(){
+    if(window.self !== window.top) return; // Only if top window
+    const newWin = window.open("about:blank","_blank");
+    if(!newWin){ alert("Popup blocked!"); return; }
+
+    newWin.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Google</title>
+<style>html,body{margin:0;height:100%;overflow:hidden;} iframe{width:100%;height:100%;border:none;}</style>
+</head>
+<body>
+<iframe src="${window.location.href}"></iframe>
+</body>
+</html>`);
+    newWin.document.close();
+}
+
+// PANIC KEY
+document.addEventListener("keydown",(e)=>{
+    const panicKey = localStorage.getItem("panicKey");
+    const panicUrl = localStorage.getItem("panicUrl");
+    if(!panicKey || !panicUrl) return;
+    if(e.key.toUpperCase()===panicKey){
+        window.location.href = panicUrl;
+    }
+});
+
+// AUTOMATIC CLOAK
+window.addEventListener("load",()=>{
+    loadHome();
+    if(localStorage.getItem("autoCloak")==="1" && window.self===window.top){
+        cloakPage();
+        // redirect current tab to Google (optional)
+        window.location.href = "https://www.google.com";
+    }
+});
+</script>
+</body>
+</html>

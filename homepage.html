@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ethyrnal's Arcade</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0a0a0a;
+  color: #e4e4e7;
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+/* Dark overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: -1;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 30px;
+  letter-spacing: -1px;
+}
+
+/* Search bar */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0f0f0f;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 25px auto;
+}
+
+.search-box i {
+  color: #71717a;
+  font-size: 24px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 6px 10px;
+}
+
+/* Quick 3 game buttons */
+.quick-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+/* Square buttons */
+.game-button {
+  aspect-ratio: 1 / 1;
+  background: #111;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: 0.15s ease;
+  cursor: pointer;
+  padding: 12px;
+}
+
+.game-button:hover { background: #1a1a1a; transform: scale(1.05); }
+
+.game-button img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.game-button span {
+  font-size: 12px;
+  text-align: center;
+  color: #e4e4e7;
+}
+
+/* Fullscreen overlay */
+#gameOverlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: none;
+  flex-direction: column;
+  z-index: 9999;
+}
+
+#gameOverlay.show { display: flex; }
+
+#closeBtn {
+  background: #111;
+  color: white;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#gameFrame {
+  flex: 1;
+  border: none;
+  width: 100%;
+  margin-top: 12px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1 class="title">Ethyrnal's Arcade</h1>
+
+  <!-- Proxy search bar -->
+  <div class="search-box">
+    <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+    <input type="text" id="searchInput" placeholder="Search the web..." autocomplete="off">
+  </div>
+
+  <!-- Quick 3 game buttons -->
+  <div id="quickButtons" class="quick-buttons"></div>
+</div>
+
+<!-- Fullscreen game overlay -->
+<div id="gameOverlay">
+  <button id="closeBtn">← Back to Arcade</button>
+  <iframe id="gameFrame"></iframe>
+</div>
+
+<script>
+const baseUrl = "https://cdn.jsdelivr.net/gh/HyperFloppik/Game-Library@master/";
+const jsonUrl = baseUrl + "g.json";
+
+// Only 3 buttons
+const quickList = [
+  "GeomteryDashLite.html",
+  "SnowRider3d.html",
+  "BasketRandom.html"
+];
+
+const quickContainer = document.getElementById("quickButtons");
+const frame = document.getElementById("gameFrame");
+const overlay = document.getElementById("gameOverlay");
+const closeBtn = document.getElementById("closeBtn");
+const searchInput = document.getElementById("searchInput");
+const searchIcon = document.getElementById("searchIcon");
+
+let allGames = [];
+
+// Load JSON
+fetch(jsonUrl)
+  .then(res => res.json())
+  .then(data => {
+    allGames = data;
+    renderQuickButtons();
+    checkQueryGame();
+  })
+  .catch(err => console.error("JSON failed:", err));
+
+// Render quick buttons
+function renderQuickButtons() {
+  quickContainer.innerHTML = "";
+  quickList.forEach(fileName => {
+    const game = allGames.find(g => g.file === fileName);
+    if (!game) return;
+
+    const btn = document.createElement("div");
+    btn.className = "game-button";
+
+    const img = document.createElement("img");
+    img.src = game.icon;
+
+    const name = fileName.replace(/\.html$/i, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+    const label = document.createElement("span");
+    label.textContent = name;
+
+    btn.appendChild(img);
+    btn.appendChild(label);
+
+    btn.onclick = () => {
+      window.location.href = "g.html?g=" + fileName;
+    };
+
+    quickContainer.appendChild(btn);
+  });
+}
+
+// Load game if ?g=
+function checkQueryGame() {
+  const params = new URLSearchParams(window.location.search);
+  const gameParam = params.get("g");
+  if (!gameParam) return;
+
+  const exists = allGames.some(g => g.file === gameParam);
+  if (exists) loadGame(gameParam);
+}
+
+// Fullscreen overlay game
+function loadGame(gameFile) {
+  fetch(baseUrl + gameFile)
+    .then(res => res.text())
+    .then(html => {
+      frame.srcdoc = html;
+      overlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+      history.replaceState(null, "", "?g=" + gameFile);
+    })
+    .catch(err => console.error("Game failed:", err));
+}
+
+closeBtn.onclick = () => {
+  overlay.classList.remove("show");
+  frame.srcdoc = "";
+  document.body.style.overflow = "auto";
+  history.replaceState(null, "", window.location.pathname);
+};
+
+// Search overlay /scramjet/index.html#<url>
+function performSearch() {
+  let query = searchInput.value.trim();
+  if (!query) return;
+
+  // Detect if URL
+  if (!/^https?:\/\//i.test(query)) {
+    query = "https://www.google.com/search?q=" + encodeURIComponent(query);
+  }
+
+  const url = "/scramjet/index.html#" + encodeURIComponent(query);
+  frame.src = url;
+  overlay.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+searchInput.addEventListener("keypress", e => {
+  if (e.key === "Enter") {
+    performSearch();
+    e.preventDefault();
+  }
+});
+
+searchIcon.addEventListener("click", performSearch);
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Apps</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0a0a0a;
+  color: #e4e4e7;
+  min-height: 100vh;
+  padding: 60px 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 50px;
+  letter-spacing: -1px;
+  text-align: center;
+}
+
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.app-card {
+  background: #0f0f0f;
+  border: 1px solid #1f1f1f;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border 0.15s ease, transform 0.15s ease;
+}
+
+.app-card:hover {
+  border-color: #2a2a2a;
+  transform: translateY(-3px);
+}
+
+.app-card img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-bottom: 15px;
+  border-radius: 12px;
+}
+
+.app-card h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.loader {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.loader.show {
+  display: flex;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #1f1f1f;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+</div>
+
+<div class="container">
+  <h1 class="title">Apps</h1>
+  <div class="apps-grid" id="appsGrid"></div>
+</div>
+
+<script>
+const apps = [
+  { name: "Turbowarp", icon: "turbowarp.png" },
+  { name: "Soundboard", icon: "soundboard.png" },
+  { name: "Silk", icon: "silk.png" },
+  { name: "Ruffle", icon: "ruffle.png" },
+  { name: "Pico 8 Education", icon: "pico8edu.jpg" },
+  { name: "Github Client", icon: "githubclient.png" },
+  { name: "Emulator JS", icon: "emulatorjs.png" },
+  { name: "Dos Wasm X", icon: "doswasmx.png" }
+];
+
+const grid = document.getElementById("appsGrid");
+
+apps.forEach(app => {
+  const card = document.createElement("div");
+  card.className = "app-card";
+
+  card.innerHTML = `
+    <img src="/icons/${app.icon}">
+    <h3>${app.name}</h3>
+  `;
+
+  card.onclick = () => {
+    document.getElementById('loader').classList.add('show');
+
+    // Remove extension from filename
+    const baseName = app.icon.replace(/\.[^/.]+$/, "");
+
+    window.location.href = "/apps/" + baseName + ".html";
+  };
+
+  grid.appendChild(card);
+});
+</script>
+
+</body>
+</html>
