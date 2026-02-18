@@ -123,17 +123,17 @@ apps.forEach(app => {
   card.className = "app-card";
 
   card.innerHTML = `
-    <img src="/icons/${app.icon}">
+    <img src="${app.icon}" alt="${app.name}">
     <h3>${app.name}</h3>
   `;
 
   card.onclick = () => {
     document.getElementById('loader').classList.add('show');
 
-    // Remove extension from filename
-    const baseName = app.icon.replace(/\.[^/.]+$/, "");
+    // Extract filename from full URL
+    const fileName = app.icon.split('/').pop().replace(/\.[^/.]+$/, "");
 
-    window.location.href = "/apps/" + baseName + ".html";
+    window.location.href = "/apps/" + fileName + ".html";
   };
 
   grid.appendChild(card);
