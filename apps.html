@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Apps</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -90,6 +91,18 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Fullscreen app iframe */
+#appFrame {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: none;
+  background: #0a0a0a;
+  z-index: 200;
+}
 </style>
 </head>
 
@@ -98,6 +111,8 @@ body {
 <div class="loader" id="loader">
   <div class="spinner"></div>
 </div>
+
+<iframe id="appFrame"></iframe>
 
 <div class="container">
   <h1 class="title">Apps</h1>
@@ -117,6 +132,8 @@ const apps = [
 ];
 
 const grid = document.getElementById("appsGrid");
+const loader = document.getElementById("loader");
+const iframe = document.getElementById("appFrame");
 
 apps.forEach(app => {
   const card = document.createElement("div");
@@ -127,13 +144,25 @@ apps.forEach(app => {
     <h3>${app.name}</h3>
   `;
 
-  card.onclick = () => {
-    document.getElementById('loader').classList.add('show');
+  card.onclick = async () => {
+    loader.classList.add("show");
 
-    // Extract filename from full URL
-    const fileName = app.icon.split('/').pop().replace(/\.[^/.]+$/, "");
+    try {
+      const fileName = app.icon.split('/').pop().replace(/\.[^/.]+$/, "");
+      const url = `https://cdn.jsdelivr.net/gh/HyperFloppik/ethyrnal-s-Arcade-v2.3@main/apps/${fileName}.html`;
 
-    window.location.href = "/apps/" + fileName + ".html";
+      const response = await fetch(url);
+      const html = await response.text();
+
+      iframe.srcdoc = html;
+      iframe.style.display = "block";
+
+    } catch (err) {
+      alert("Failed to load app.");
+      console.error(err);
+    }
+
+    loader.classList.remove("show");
   };
 
   grid.appendChild(card);
