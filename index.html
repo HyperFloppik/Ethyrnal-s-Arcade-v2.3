@@ -176,7 +176,7 @@ iframe {
   <button onclick="loadHome()"><i class="fa-solid fa-house"></i>Home</button>
   <button onclick="loadGames()"><i class="fa-solid fa-gamepad"></i>Games</button>
   <button onclick="loadApps()"><i class="fa-solid fa-layer-group"></i>Apps</button>
-  <button onclick="window.open('/scramjet/index.html','_blank')"><i class="fa-solid fa-server"></i>Proxy</button>
+  <button onclick="openScramjet()"><i class="fa-solid fa-server"></i>Proxy</button>
 </div>
 
 <iframe id="contentFrame"></iframe>
@@ -249,6 +249,14 @@ function loadPage(url){
 function loadHome(){ loadPage("homepage.html"); }
 function loadGames(){ loadPage("g.html"); }
 function loadApps(){ loadPage("apps.html"); }
+
+// OPEN SCRAMJET IN NEW TAB RELATIVE TO CURRENT PAGE
+function openScramjet() {
+  let url = window.location.href;
+  const baseUrl = url.substring(0, url.lastIndexOf('/'));
+  const newUrl = baseUrl + '/scramjet/index.html';
+  window.open(newUrl, '_blank');
+}
 
 // CLOAKING
 function cloakPage(){
