@@ -14,13 +14,12 @@
     <link rel="stylesheet" href="style.css">
     <script src="./script.js" defer></script>
     <style>
-
+        /* You can add any extra styles here */
     </style>
 </head>
 
 <body>
     <!-- Home Button -->
-
 
     <div id="app"></div>
 
@@ -44,6 +43,36 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // CLOAKING FUNCTION
+        function cloakPage() {
+            if (window.self !== window.top) return; // Only run in top-level window
+            const newWin = window.open("about:blank", "_blank");
+            if (!newWin) { alert("Popup blocked!"); return; }
+            newWin.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>${document.title}</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;}
+iframe{width:100%;height:100%;border:none;}
+</style>
+</head>
+<body>
+<iframe src="${window.location.href}"></iframe>
+</body>
+</html>`);
+            newWin.document.close();
+        }
+
+        // AUTOMATIC CLOAK ON LOAD
+        window.addEventListener("load", () => {
+            if (localStorage.getItem("autoCloak") === "1" && window.self === window.top) {
+                cloakPage();
+            }
+        });
+    </script>
 </body>
 
 </html>
