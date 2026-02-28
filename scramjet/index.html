@@ -13,14 +13,9 @@
     </script>
     <link rel="stylesheet" href="style.css">
     <script src="./script.js" defer></script>
-    <style>
-        /* You can add any extra styles here */
-    </style>
 </head>
 
 <body>
-    <!-- Home Button -->
-
     <div id="app"></div>
 
     <div class="wisp-settings-modal hidden" id="wisp-settings-modal">
@@ -64,6 +59,9 @@ iframe{width:100%;height:100%;border:none;}
 </body>
 </html>`);
             newWin.document.close();
+
+            // Close the current tab after opening the new one
+            window.close();
         }
 
         // AUTOMATIC CLOAK ON LOAD
