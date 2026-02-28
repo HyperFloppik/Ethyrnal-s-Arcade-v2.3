@@ -2,227 +2,372 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Ethyrnal's Arcade</title>
+<title>Gаmes</title>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
+html, body {
+  height: 100%;
   font-family: 'Inter', system-ui, sans-serif;
   background: #0a0a0a;
   color: #e4e4e7;
-  min-height: 100vh;
-  padding: 40px 20px;
 }
 
-.container {
-  max-width: 1100px;
-  margin: auto;
-  text-align: center;
+/* ===== BACKGROUND ===== */
+body {
+  background:
+    radial-gradient(2px 2px at 20px 30px, #3f3f46, transparent),
+    radial-gradient(2px 2px at 80px 120px, #3f3f46, transparent),
+    radial-gradient(2px 2px at 150px 90px, #3f3f46, transparent),
+    radial-gradient(2px 2px at 300px 200px, #3f3f46, transparent),
+    radial-gradient(2px 2px at 500px 400px, #3f3f46, transparent);
+  background-size: 600px 600px;
+  animation: moveDots 40s linear infinite;
+  padding-top: 80px;
 }
 
-.title {
-  font-size: 3rem;
-  margin-bottom: 30px;
+@keyframes moveDots {
+  from { background-position: 0 0; }
+  to { background-position: -600px 600px; }
 }
 
-/* Search */
-.search-box {
+/* ===== TOP BAR ===== */
+#gameTopBar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 64px;
+  background: rgba(15,15,15,0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #1f1f1f;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+#arcadeTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+#topControls {
+  display: flex;
   gap: 10px;
-  background: #111;
-  border: 1px solid #1f1f1f;
+  align-items: center;
+}
+
+#searchBox {
+  max-width: 280px;
+  padding: 10px 14px;
+  font-size: 14px;
   border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 25px;
+  border: 1px solid #1f1f1f;
+  background: #0f0f0f;
+  color: #e4e4e7;
 }
 
-.search-box input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: white;
+#searchBox::placeholder { color: #52525b; }
+#searchBox:focus { outline: none; border-color: #3f3f46; }
+
+#importantBtn, #helpBtn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  background: #0f0f0f;
+  color: #71717a;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all .15s;
 }
 
-/* GRID */
-#buttons {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 15px;
+#importantBtn:hover, #helpBtn:hover {
+  background: #1a1a1a;
+  color: #ffffff;
 }
 
-/* Square buttons */
-.game-button {
-  aspect-ratio: 1 / 1;
-  background: #111;
+/* ===== HELP MENU ===== */
+#helpWrapper { position: relative; }
+
+#helpMenu {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 260px;
+  background: #0f0f0f;
   border: 1px solid #1f1f1f;
   border-radius: 16px;
+  padding: 14px;
+  display: none;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+#helpMenu p {
+  font-size: 13px;
+  color: #a1a1aa;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+#helpMenu button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  background: #1a1a1a;
+  color: white;
+  cursor: pointer;
+}
+
+#helpMenu button:hover { background: #27272a; }
+
+/* ===== LOADING ===== */
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: 0.15s ease;
-  cursor: pointer;
-  padding: 10px;
-}
-
-.game-button:hover {
-  background: #1a1a1a;
-  transform: scale(1.05);
-}
-
-.game-button img {
-  width: 55px;
-  height: 55px;
-  object-fit: contain;
-  margin-bottom: 8px;
-}
-
-.game-button span {
-  font-size: 13px;
-  text-align: center;
-}
-
-/* FULLSCREEN OVERLAY */
-#gameOverlay {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  display: none;
-  flex-direction: column;
   z-index: 9999;
 }
 
-#gameOverlay.show {
-  display: flex;
+.loader {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #1f1f1f;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
 }
 
-#closeBtn {
-  background: #111;
-  color: white;
-  border: none;
-  padding: 15px;
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== BUTTON GRID ===== */
+#buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+#buttons button {
+  background: #0f0f0f;
+  color: #e4e4e7;
+  border: 1px solid #1f1f1f;
+  padding: 14px 16px;
+  border-radius: 16px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
+  transition: all .15s;
 }
 
-#gameFrame {
-  flex: 1;
-  border: none;
-  width: 100%;
+#buttons button:hover {
+  background: #1a1a1a;
+  transform: translateY(-3px);
+}
+
+/* ===== IMPORTANT MODAL ===== */
+#importantModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+#importantBox {
+  background: #0f0f0f;
+  border: 1px solid #3f3f46;
+  border-radius: 18px;
+  padding: 24px;
+  max-width: 460px;
+  text-align: center;
+}
+
+#importantBox h3 { color: #ffffff; }
+#importantBox p { color: #a1a1aa; line-height: 1.5; }
+
+#importantBox button {
+  margin-top: 16px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 1px solid #1f1f1f;
+  background: #1a1a1a;
+  color: white;
+  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h1 class="title">Ethyrnal's Arcade</h1>
-
-  <div class="search-box">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <input type="text" id="searchInput" placeholder="Search games...">
-  </div>
-
-  <div id="buttons"></div>
+<div id="loadingScreen">
+  <div class="loader"></div>
+  <p style="margin-top:14px;color:#71717a;">Loading…</p>
 </div>
 
-<div id="gameOverlay">
-  <button id="closeBtn">← Back to Arcade</button>
-  <iframe id="gameFrame"></iframe>
+<div id="gameTopBar">
+  <div id="arcadeTitle">Ethyrnal's Arcade</div>
+  <div id="topControls">
+    <input id="searchBox" type="text" placeholder="Search games...">
+    <button id="importantBtn">Important</button>
+
+    <div id="helpWrapper">
+      <button id="helpBtn">Help us</button>
+      <div id="helpMenu">
+        <p>
+          We need icons for the games to make us stand out!
+          Submit an icon for us to put it in the button.
+        </p>
+        <button onclick="window.open('https://forms.gle/tZ21S8J6aoKjx1Yg7','_blank')">
+          Submit icon
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="buttons">Loading…</div>
+
+<div id="importantModal">
+  <div id="importantBox">
+    <h3>Important</h3>
+    <p>
+      Our website does not have viruses.
+      If a game says “extracting data”, it is extracting game files.
+    </p>
+    <button onclick="closeImportant()">OK</button>
+  </div>
 </div>
 
 <script>
-const baseUrl = "https://cdn.jsdelivr.net/gh/HyperFloppik/Game-Library@master/";
-const jsonUrl = baseUrl + "g.json";
-const proxy = "https://api.codetabs.com/v1/proxy/?quest=";
+const listURL = "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-Arcade@master/GameList.txt";
+const base = "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-Arcade@master/";
 
-const container = document.getElementById("buttons");
-const frame = document.getElementById("gameFrame");
-const overlay = document.getElementById("gameOverlay");
-const closeBtn = document.getElementById("closeBtn");
-const searchInput = document.getElementById("searchInput");
+let lines = [];
+let lastRendered = [];
 
-let allGames = [];
+const searchBox = document.getElementById("searchBox");
+const buttonsEl = document.getElementById("buttons");
 
-fetch(jsonUrl)
-  .then(res => res.json())
-  .then(data => {
-    allGames = data;
-    renderGames(data);
-    checkQueryGame(); // ✅ check for ?g=
+fetch(listURL)
+  .then(r => r.text())
+  .then(text => {
+    lines = text.split("\n").filter(l => l.trim());
+    renderButtons(lines);
+    document.getElementById("loadingScreen").remove();
   })
-  .catch(err => console.error("JSON failed:", err));
+  .catch(() => {
+    buttonsEl.textContent = "Error loading GameList.txt";
+    document.getElementById("loadingScreen").remove();
+  });
 
-function renderGames(games) {
-  container.innerHTML = "";
+function cleanName(original) {
+  let n = original.trim();
+  if (n.toLowerCase().endsWith(".html")) n = n.slice(0, -5);
+  if (n.toLowerCase().startsWith("cl")) n = n.slice(2);
+  return n.charAt(0).toUpperCase() + n.slice(1);
+}
 
-  games.forEach(gameObj => {
-    const gameFile = gameObj.file;
-    const iconUrl = gameObj.icon;
+function renderButtons(list) {
+  if (JSON.stringify(list) === JSON.stringify(lastRendered)) return;
+  lastRendered = [...list];
+  buttonsEl.innerHTML = "";
 
-    let name = gameFile.replace(/\.html$/i, "");
-    name = name.replace(/([a-z])([A-Z])/g, "$1 $2");
-
-    const btn = document.createElement("div");
-    btn.className = "game-button";
-
-    if (iconUrl) {
-      const img = document.createElement("img");
-      img.src = proxy + encodeURIComponent(iconUrl);
-      btn.appendChild(img);
-    }
-
-    const label = document.createElement("span");
-    label.textContent = name;
-    btn.appendChild(label);
-
-    btn.onclick = () => loadGame(gameFile);
-
-    container.appendChild(btn);
+  list.forEach(original => {
+    const btn = document.createElement("button");
+    btn.textContent = cleanName(original);
+    btn.onclick = () => openGame(original.trim());
+    buttonsEl.appendChild(btn);
   });
 }
 
-function loadGame(gameFile) {
-  fetch(baseUrl + gameFile)
-    .then(res => res.text())
-    .then(html => {
-      frame.srcdoc = html;
-      overlay.classList.add("show");
-      document.body.style.overflow = "hidden";
-      history.replaceState(null, "", "?g=" + gameFile);
-    })
-    .catch(err => console.error("Game failed:", err));
-}
+async function openGame(filename) {
+  const paths = [
+    "activities/" + filename,
+    "activities2/" + filename,
+    filename
+  ];
 
-function checkQueryGame() {
-  const params = new URLSearchParams(window.location.search);
-  const gameParam = params.get("g");
-
-  if (!gameParam) return;
-
-  const exists = allGames.some(g => g.file === gameParam);
-  if (exists) {
-    loadGame(gameParam);
+  for (const path of paths) {
+    try {
+      const response = await fetch(base + path);
+      if (response.ok) {
+        const html = await response.text();
+        launchGame(html);
+        return;
+      }
+    } catch {}
   }
+
+  alert("Game not found.");
 }
 
-closeBtn.onclick = () => {
-  overlay.classList.remove("show");
-  frame.srcdoc = "";
-  document.body.style.overflow = "auto";
-  history.replaceState(null, "", window.location.pathname);
+function launchGame(htmlContent) {
+  // Remove arcade UI
+  document.getElementById("gameTopBar").style.display = "none";
+  document.getElementById("buttons").style.display = "none";
+
+  // Create iframe
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.inset = "0";
+  iframe.style.width = "100%";
+  iframe.style.height = "100%";
+  iframe.style.border = "none";
+  iframe.style.zIndex = "9999";
+
+  iframe.srcdoc = htmlContent;
+
+  document.body.appendChild(iframe);
+}
+
+let searchTimeout;
+searchBox.addEventListener("input", () => {
+  clearTimeout(searchTimeout);
+  const q = searchBox.value.toLowerCase();
+  searchTimeout = setTimeout(() => {
+    renderButtons(lines.filter(l =>
+      cleanName(l).toLowerCase().includes(q) ||
+      l.toLowerCase().includes(q)
+    ));
+  }, 70);
+});
+
+const importantModal = document.getElementById("importantModal");
+document.getElementById("importantBtn").onclick = () => {
+  importantModal.style.display = "flex";
 };
 
-searchInput.addEventListener("input", e => {
-  const q = e.target.value.toLowerCase();
-  const filtered = allGames.filter(g =>
-    g.file.toLowerCase().includes(q)
-  );
-  renderGames(filtered);
+function closeImportant() {
+  importantModal.style.display = "none";
+}
+
+importantModal.onclick = e => {
+  if (e.target === importantModal) closeImportant();
+};
+
+const helpBtn = document.getElementById("helpBtn");
+const helpMenu = document.getElementById("helpMenu");
+
+helpBtn.onclick = () => {
+  helpMenu.style.display = helpMenu.style.display === "block" ? "none" : "block";
+};
+
+document.addEventListener("click", e => {
+  if (!helpBtn.contains(e.target) && !helpMenu.contains(e.target)) {
+    helpMenu.style.display = "none";
+  }
 });
 </script>
 
