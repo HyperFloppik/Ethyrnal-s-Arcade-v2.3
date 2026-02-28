@@ -1,8 +1,8 @@
 // =====================================================
 // CONFIGURATION - Gets from config.js
 // =====================================================
-const DEFAULT_WISP = window.SITE_CONFIG?.defaultWisp ?? "wss://vseesa.quasar.ploteando.com/wisp/";
-const WISP_SERVERS = [{ name: "VSEesa", url: "wss://vseesa.quasar.ploteando.com/wisp/" }];
+const DEFAULT_WISP = window.SITE_CONFIG?.defaultWisp ?? "wss://wisp.rhw.one/";
+const WISP_SERVERS = [{ name: "VSEesa", url: "wss://wisp.rhw.one/" }];
 
 // Initialize default proxy server if not set
 if (!localStorage.getItem("proxServer")) {
