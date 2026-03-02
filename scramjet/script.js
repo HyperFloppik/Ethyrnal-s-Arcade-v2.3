@@ -1,8 +1,8 @@
 // =====================================================
 // CONFIGURATION - Gets from config.js
 // =====================================================
-const DEFAULT_WISP = window.SITE_CONFIG?.defaultWisp ?? "wss://wisp.rhw.one/";
-const WISP_SERVERS = [{ name: "RHW's WISP", url: "wss://wisp.rhw.one/" }];
+const DEFAULT_WISP = window.SITE_CONFIG?.defaultWisp ?? "wss://defschoolwork.kutakutik.or.id/wisp/";
+const WISP_SERVERS = [{ name: "Not Canvas Instructure's Wisp", url: "wss://defschoolwork.kutakutik.or.id/wisp/" }];
 
 // Initialize default proxy server if not set
 if (!localStorage.getItem("proxServer")) {
