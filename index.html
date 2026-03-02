@@ -1,7 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ethyrnal's Arcade</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DGZ6VYV4BG"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -10,10 +15,6 @@
   gtag('config', 'G-DGZ6VYV4BG');
 </script>
 
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ethyrnal's Arcade</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
 body {
   margin: 0;
@@ -21,6 +22,7 @@ body {
   font-family: "Inter", system-ui, sans-serif;
   overflow: hidden;
 }
+
 /* SETTINGS BUTTON */
 .settings-btn {
   position: fixed;
@@ -54,6 +56,7 @@ body {
   z-index: 1600;
 }
 .settings-panel.show { display: flex; }
+
 .settings-option {
   padding: 10px;
   border-radius: 8px;
@@ -64,6 +67,7 @@ body {
   color: #fff;
 }
 .settings-option:hover { background: #1a1a1a; }
+
 .settings-panel input[type="text"] {
   width:100%;
   padding:4px 6px;
@@ -176,6 +180,7 @@ iframe {
   </div>
 </div>
 
+<!-- LOADER -->
 <div class="loader" id="loader">
   <div style="color:#fff; font-size:14px; margin-bottom:6px">Loading...</div>
   <div class="progress-bar-container">
@@ -204,7 +209,7 @@ const autoCloakToggle = document.getElementById("autoCloakToggle");
 const panicUrlInput = document.getElementById("panicUrlInput");
 const panicKeyInput = document.getElementById("panicKeyInput");
 
-// TOGGLE SETTINGS PANEL
+// SETTINGS PANEL
 settingsBtn.onclick = () => settingsPanel.classList.toggle("show");
 
 // SAVE SETTINGS
@@ -244,7 +249,7 @@ function showLoader(){
   return interval;
 }
 
-// PAGE LOADERS
+// PAGE LOADER
 function loadPage(url){
   const interval = showLoader();
   iframe.src = url;
@@ -256,19 +261,21 @@ function loadPage(url){
     if(url!=="homepage.html") settingsPanel.classList.remove("show");
   }
 }
+
+// NAVIGATION FUNCTIONS
 function loadHome(){ loadPage("homepage.html"); }
 function loadGames(){ loadPage("g.html"); }
 function loadApps(){ loadPage("apps.html"); }
-
-// OPEN SCRAMJET IN SAME PAGE
 function openScramjet() {
   const url = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'scramjet/index.html';
-  loadPage(url); // use the loader function
+  loadPage(url);
 }
 
-// NEW AI SECTION
+// AI BUTTON: opens scramjet proxy with ChatGPT
 function loadAI() {
-  loadPage("/scramjet/index.html#https://chatgpt.com/");
+  const aiUrl = prompt("Enter AI URL or leave blank for ChatGPT", "https://chat.openai.com/");
+  const url = "/scramjet/index.html#" + encodeURIComponent(aiUrl || "https://chat.openai.com/");
+  loadPage(url);
 }
 
 // CLOAKING
