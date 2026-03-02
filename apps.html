@@ -103,6 +103,28 @@ body {
   background: #0a0a0a;
   z-index: 200;
 }
+
+/* Close button */
+#closeBtn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 300;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: none;
+  font-size: 24px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  display: none;
+  transition: background 0.2s ease;
+}
+
+#closeBtn:hover {
+  background: rgba(255,255,255,0.2);
+}
 </style>
 </head>
 
@@ -113,6 +135,7 @@ body {
 </div>
 
 <iframe id="appFrame"></iframe>
+<button id="closeBtn"><i class="fa fa-times"></i></button>
 
 <div class="container">
   <h1 class="title">Apps</h1>
@@ -128,13 +151,14 @@ const apps = [
   { name: "Pico 8 Education", icon: "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-s-Arcade-v2.3@main/icons/pico8edu.jpg" },
   { name: "Github Client", icon: "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-s-Arcade-v2.3@main/icons/githubclient.png" },
   { name: "Emulator JS", icon: "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-s-Arcade-v2.3@main/icons/emulatorjs.png" },
-  { name: "Dos Wasm X", icon: "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-s-Arcade-v2.3@main/icons/doswasmx.png" }
-  { name: "Dont You Lecture me with your thirty dollar haircut", icon: "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-s-Arcade-v2.3@main/icons/DontYouLectureMeWithYourThirtyDollarHaircut.png" }
+  { name: "Dos Wasm X", icon: "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-s-Arcade-v2.3@main/icons/doswasmx.png" },
+  { name: "Dont You Lecture Me With Your Thirty Dollar Haircut", icon: "https://cdn.jsdelivr.net/gh/HyperFloppik/Ethyrnal-s-Arcade-v2.3@main/icons/DontYouLectureMeWithYourThirtyDollarHaircut.png" }
 ];
 
 const grid = document.getElementById("appsGrid");
 const loader = document.getElementById("loader");
 const iframe = document.getElementById("appFrame");
+const closeBtn = document.getElementById("closeBtn");
 
 apps.forEach(app => {
   const card = document.createElement("div");
@@ -153,21 +177,30 @@ apps.forEach(app => {
       const url = `https://cdn.jsdelivr.net/gh/HyperFloppik/ethyrnal-s-Arcade-v2.3@main/apps/${fileName}.html`;
 
       const response = await fetch(url);
+      if (!response.ok) throw new Error("Network error");
       const html = await response.text();
 
       iframe.srcdoc = html;
       iframe.style.display = "block";
+      closeBtn.style.display = "block";
 
     } catch (err) {
       alert("Failed to load app.");
       console.error(err);
+    } finally {
+      loader.classList.remove("show");
     }
-
-    loader.classList.remove("show");
   };
 
   grid.appendChild(card);
 });
+
+// Close button functionality
+closeBtn.onclick = () => {
+  iframe.style.display = "none";
+  iframe.srcdoc = "";
+  closeBtn.style.display = "none";
+};
 </script>
 
 </body>
