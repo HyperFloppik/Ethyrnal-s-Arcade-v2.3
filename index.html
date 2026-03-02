@@ -189,6 +189,7 @@ iframe {
   <button onclick="loadGames()"><i class="fa-solid fa-gamepad"></i>Games</button>
   <button onclick="loadApps()"><i class="fa-solid fa-layer-group"></i>Apps</button>
   <button onclick="openScramjet()"><i class="fa-solid fa-server"></i>Proxy</button>
+  <button onclick="loadAI()"><i class="fa-solid fa-robot"></i>AI</button>
 </div>
 
 <iframe id="contentFrame"></iframe>
@@ -263,6 +264,11 @@ function loadApps(){ loadPage("apps.html"); }
 function openScramjet() {
   const url = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'scramjet/index.html';
   loadPage(url); // use the loader function
+}
+
+// NEW AI SECTION
+function loadAI() {
+  loadPage("/scramjet/index.html#https://chatgpt.com/");
 }
 
 // CLOAKING
