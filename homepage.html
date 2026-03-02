@@ -80,70 +80,22 @@ body::before {
   padding: 6px 10px;
 }
 
-/* Quick 3 game buttons */
-.quick-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-/* Square buttons */
-.game-button {
-  aspect-ratio: 1 / 1;
-  background: #111;
-  border: 1px solid #1f1f1f;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: 0.15s ease;
-  cursor: pointer;
-  padding: 12px;
-}
-
-.game-button:hover { background: #1a1a1a; transform: scale(1.05); }
-
-.game-button img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  margin-bottom: 8px;
-}
-
-.game-button span {
-  font-size: 12px;
-  text-align: center;
-  color: #e4e4e7;
-}
-
 /* Fullscreen overlay */
 #gameOverlay {
   position: fixed;
   inset: 0;
   background: #000;
   display: none;
-  flex-direction: column;
   z-index: 9999;
 }
 
 #gameOverlay.show { display: flex; }
 
-#closeBtn {
-  background: #111;
-  color: white;
-  border: none;
-  padding: 12px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
 #gameFrame {
   flex: 1;
   border: none;
   width: 100%;
-  margin-top: 12px;
+  height: 100%;
 }
 </style>
 </head>
@@ -157,104 +109,18 @@ body::before {
     <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
     <input type="text" id="searchInput" placeholder="Search the web..." autocomplete="off">
   </div>
-
-  <!-- Quick 3 game buttons -->
-  <div id="quickButtons" class="quick-buttons"></div>
 </div>
 
-<!-- Fullscreen game overlay -->
+<!-- Fullscreen overlay -->
 <div id="gameOverlay">
-  <button id="closeBtn">← Back to Arcade</button>
   <iframe id="gameFrame"></iframe>
 </div>
 
 <script>
-const baseUrl = "https://cdn.jsdelivr.net/gh/HyperFloppik/Game-Library@master/";
-const jsonUrl = baseUrl + "g.json";
-
-// Only 3 buttons
-const quickList = [
-  "GeomteryDashLite.html",
-  "SnowRider3d.html",
-  "BasketRandom.html"
-];
-
-const quickContainer = document.getElementById("quickButtons");
 const frame = document.getElementById("gameFrame");
 const overlay = document.getElementById("gameOverlay");
-const closeBtn = document.getElementById("closeBtn");
 const searchInput = document.getElementById("searchInput");
 const searchIcon = document.getElementById("searchIcon");
-
-let allGames = [];
-
-// Load JSON
-fetch(jsonUrl)
-  .then(res => res.json())
-  .then(data => {
-    allGames = data;
-    renderQuickButtons();
-    checkQueryGame();
-  })
-  .catch(err => console.error("JSON failed:", err));
-
-// Render quick buttons
-function renderQuickButtons() {
-  quickContainer.innerHTML = "";
-  quickList.forEach(fileName => {
-    const game = allGames.find(g => g.file === fileName);
-    if (!game) return;
-
-    const btn = document.createElement("div");
-    btn.className = "game-button";
-
-    const img = document.createElement("img");
-    img.src = game.icon;
-
-    const name = fileName.replace(/\.html$/i, "").replace(/([a-z])([A-Z])/g, "$1 $2");
-    const label = document.createElement("span");
-    label.textContent = name;
-
-    btn.appendChild(img);
-    btn.appendChild(label);
-
-    btn.onclick = () => {
-      window.location.href = "g.html?g=" + fileName;
-    };
-
-    quickContainer.appendChild(btn);
-  });
-}
-
-// Load game if ?g=
-function checkQueryGame() {
-  const params = new URLSearchParams(window.location.search);
-  const gameParam = params.get("g");
-  if (!gameParam) return;
-
-  const exists = allGames.some(g => g.file === gameParam);
-  if (exists) loadGame(gameParam);
-}
-
-// Fullscreen overlay game
-function loadGame(gameFile) {
-  fetch(baseUrl + gameFile)
-    .then(res => res.text())
-    .then(html => {
-      frame.srcdoc = html;
-      overlay.classList.add("show");
-      document.body.style.overflow = "hidden";
-      history.replaceState(null, "", "?g=" + gameFile);
-    })
-    .catch(err => console.error("Game failed:", err));
-}
-
-closeBtn.onclick = () => {
-  overlay.classList.remove("show");
-  frame.srcdoc = "";
-  document.body.style.overflow = "auto";
-  history.replaceState(null, "", window.location.pathname);
-};
 
 // Search overlay /scramjet/index.html#<url>
 function performSearch() {
